@@ -1,0 +1,58 @@
+version: '3'
+services:
+
+  # DBの情報は消しました
+
+  fluentd:
+    build:
+      context: .
+      dockerfile: ./fluentd/Dockerfile
+    container_name: log_fluentd
+    ports:
+      - 24224:24224
+    networks:
+      - NginxLog
+    volumes:
+      - ./fluentd/ltsv.log:/var/log/nginx/access.log
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+
+  mysql:
+    image: mysql:8.0
+    container_name: log_mysql
+    restart: always
+    volumes:
+     - ./mysql/data:/var/lib/mysql
+     - ./mysql/scripts:/docker-entrypoint-initdb.d
+    ports:
+     - 3306:3306
+    networks:
+      - NginxLog
+    environment:
+      - MYSQL_DATABASE=
+      - MYSQL_USER=
+      - MYSQL_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=
+      - TZ=Asia/Tokyo
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: log_phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=
+      - PMA_PASSWORD=
+      - TZ=Asia/Tokyo
+    ports:
+      - 8081:80
+    networks:
+      - NginxLog
+    depends_on:
+      - mysql
+
+# Cloudflare WARP-toWARPを経由して接続する場合（要検証）
+networks:
+  NginxLog:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1420
