@@ -5,6 +5,8 @@ GrafanaでNginxのアクセスログを集計するときに使います。
 
 載せれない部分は空値 or 空ファイルにしてます。
 
+自分用のメモです。
+
 > [!NOTE]
 > Webサーバーではありません。
 > 
@@ -47,3 +49,6 @@ log_format ltsv "log_time:$time_iso8601\t"
                 "country:$geoip2_data_country_code\t"
                 "status:$status";
 ```
+
+# 参考
+[Nginxのアクセスログをfluentd経由でMySQLに保存する](https://itoka.hatenadiary.com/entry/2022/03/17/000944)
